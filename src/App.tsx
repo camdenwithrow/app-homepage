@@ -1,40 +1,97 @@
-function App() {
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { MoreInfo, Edit } from './icons/Icons'
 
-  const apps = [
-    { id: 0, name: "Life Dash", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 1, name: "Finance", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 2, name: "Health", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 3, name: "Fitness", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 4, name: "Wishlist", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 5, name: "Recipes", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 6, name: "Scheduler", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-    { id: 7, name: "Meal Plan", url: "https://www.camdenwithrow.com", logo: "https://img.logoipsum.com/300.svg" },
-  ]
+interface AppData {
+  id: number
+  name: string
+  url: string
+  logo: string
+}
+
+
+function App() {
+  const [apps, setApps] = useState<AppData[]>([])
+  const [selectedApp, setSelectedApp] = useState<AppData | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resp = await axios.get('https://api.camdenwithrow.com/apps')
+        setApps(resp.data)
+      } catch (error) {
+        console.log("ERROR", error)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
-    <div className="min-h-screen w-screen bg-slate-800 text-slate-200">
-      <div className="w-full py-4 px-8 flex items-center justify-between shadow-lg bg-slate-900">
-        <h2 className=" text-xl font-bold">App Drawer</h2>
-        <button className="py-2 px-3 rounded-lg border border-slate-200 transition hover:bg-slate-200 hover:text-slate-900 active:bg-slate-600 active:text-slate-200 active:border-slate-600">Log out</button>
-      </div>
-      <div className="w-full p-8 sm:p-0 sm:w-auto mt-24 flex justify-center">
-        <div className="w-full sm:w-auto grid grid-cols-3 gap-8 md:grid-cols-4">
-          {apps.map((app) => (
-            <a 
-              key={app.id} 
-              // href={app.url}
-              href="#" 
-              className="relative p-4 flex flex-col justify-center items-center cursor-pointer rounded-lg group"
-            >
-              <span className="absolute inset-0 shadow shadow-slate-900 rounded-lg group-active:opacity-0"></span>
-              <span className="absolute inset-0 rounded-lg shadow-lg shadow-slate-900 opacity-0 duration-100 transition-opacity group-hover:opacity-100 group-active:opacity-0 active:transition-none"></span>
-              <img src={app.logo} alt={`${app.name} logo`} className="h-32 w-32" />
-              <h4 className="font-extrabold text-xs uppercase">{app.name}</h4>
-            </a>
-          ))}
+      <div className="min-h-screen w-screen relative text-slate-200 bg-slate-500/40">
+        <div className="absolute inset-0 -z-50 bg-center bg-cover bg-hero"></div>
+        <div className="absolute top-0 left-0 right-0 h-96 -z-40  bg-gradient-to-t from-transparent to-slate-900"></div>
+        <div className="w-full py-4 px-8 flex items-center justify-between ">
+          <h2 className=" text-xl font-bold">App Drawer</h2>
+          <button className="py-2 px-3 rounded-lg border border-slate-200 transition hover:bg-slate-200 hover:text-slate-900 active:bg-slate-600 active:text-slate-200 active:border-slate-600">Log out</button>
         </div>
+        <div className="w-full p-8 sm:p-0 sm:w-auto mt-24 flex justify-center">
+          <div className="w-full sm:w-auto grid grid-cols-3 gap-8 md:grid-cols-4">
+            {apps.map((app) => (
+              <a
+                key={app.id}
+                // href={app.url}
+                href="#"
+                className="relative p-4 flex flex-col justify-center items-center bg-slate-500/20 cursor-pointer rounded-lg group"
+              >
+                <span className="absolute inset-0 shadow shadow-slate-500 rounded-lg group-active:opacity-0"></span>
+                <span className="absolute inset-0 rounded-lg shadow-lg shadow-slate-500 opacity-0 duration-100 transition-opacity group-hover:opacity-60 group-active:opacity-0 active:transition-none"></span>
+                <img src={app.logo} alt={`${app.name} logo`} className="h-32 w-32" />
+                <h4 className="mt-2 font-extrabold text-xs uppercase">{app.name}</h4>
+                <button onClick={() => setSelectedApp(app)} className='absolute top-2 right-1 h-8 w-8 z-1'>
+                  <MoreInfo className="stroke-slate-200 w-8 h-8 border-none" />
+                </button>
+              </a>
+            ))}
+          </div>
+        </div>
+        {selectedApp &&
+          <div className='absolute bg-slate-500/50 z-10 inset-0 flex justify-center items-center'>
+            <div className='px-10 py-6 bg-slate-900/95 rounded-lg'>
+              <div className='flex justify-between items-center'>
+                <div className='flex items-center'>
+                  <div className='w-16 text-sm'>name: </div>
+                  <div className='font-extrabold uppercase'>{selectedApp.name}</div>
+                </div>
+                <button>
+                  <Edit className='ml-3 h-4 w-4 stroke-slate-200' midFill="slate-200" />
+                </button>
+              </div>
+              <div className='flex justify-between items-center'>
+                <div className='flex items-center'>
+                  <div className='w-16 text-sm'>url: </div>
+                  <div className='font-extrabold'>{selectedApp.url}</div>
+                </div>
+                <button>
+                  <Edit className='ml-3 h-4 w-4 stroke-slate-200' midFill="slate-200" />
+                </button>
+              </div>
+              <div className='flex justify-between items-center'>
+                <div className='flex items-center'>
+                  <div className='w-16 text-sm'>logo url: </div>
+                  <div className='font-extrabold'>{selectedApp.logo}</div>
+                </div>
+                <button>
+                  <Edit className='ml-3 h-4 w-4 stroke-slate-200' midFill="slate-200" />
+                </button>
+              </div>
+              <div className='w-full mt-6 flex justify-end items-center'>
+                <button onClick={() => setSelectedApp(null)} className='mr-3 px-2 py-1 border border-slate-200 rounded-lg'>Close</button>
+                <button onClick={() => setSelectedApp(null)} className='px-2 py-1 text-slate-800 bg-slate-400 border border-slate-400 rounded-lg'>Apply</button>
+              </div>
+            </div>
+          </div>
+        }
       </div>
-    </div>
   )
 }
 
